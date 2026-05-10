@@ -23,6 +23,10 @@ import random
 # ============================================
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "probe ai is live,, ready to assist you! 🚀"
+
 # ============================================
 # OPENAI CLIENT
 # ============================================
