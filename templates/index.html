@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>probe.ai</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0b1f3a, #020617);
+            color: white;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: rgba(2, 6, 23, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .sidebar.hidden {
+            margin-left: -260px;
+        }
+
+        .logo {
+            font-size: 22px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .side-btn {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .side-btn:hover {
+            background: #2563eb;
+        }
+
+        .side-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .bottom-brand {
+            position: absolute;
+            bottom: 20px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .menu-btn {
+            position: absolute;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .online {
+            position: absolute;
+            right: 20px;
+            color: #22c55e;
+        }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .hero-icon {
+            font-size: 60px;
+        }
+
+        .hero span {
+            color: #3b82f6;
+        }
+
+        /* CHAT */
+        .chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .msg {
+            max-width: 60%;
+            padding: 14px;
+            border-radius: 14px;
+            margin: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .bot {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .user {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            margin-left: auto;
+        }
+
+        .time {
+            font-size: 11px;
+            opacity: 0.5;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+        }
+
+        /* INPUT */
+        .input-box {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .plus-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            outline: none;
+        }
+
+        .btn {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        .mic {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* PLUS MENU */
+        .plus-menu {
+            position: absolute;
+            bottom: 75px;
+            left: 15px;
+            background: #111827;
+            border-radius: 14px;
+            padding: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+        }
+
+        .plus-menu button {
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .plus-menu button:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+
+        <div class="logo">Dashboard</div>
+
+        <button class="side-btn active" onclick="newChat(this)">➕ New Chat</button>
+
+        <button class="side-btn" onclick="loadHistory(this)">🧠 History</button>
+
+        <button class="side-btn" onclick="clearChat(this)">🗑 Clear Chat</button>
+
+        <button class="side-btn" onclick="quickAsk('weather today', this)">🌦 Weather</button>
+
+        <button class="side-btn" onclick="quickAsk('latest news', this)">📰 News</button>
+
+        <div class="bottom-brand">
+            🧩 probe.ai<br>
+            Intelligent. Reliable. Yours.
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+
+            <h3>probe.ai</h3>
+
+            <div class="online">● Online</div>
+
+        </div>
+
+        <!-- HERO -->
+        <div class="hero">
+
+            <div class="hero-icon">🧩</div>
+
+            <h1 id="greeting">Hello!</h1>
+
+            <p>How can I help you today?</p>
+
+        </div>
+
+        <!-- CHAT -->
+        <div class="chat" id="chat"></div>
+
+        <!-- INPUT -->
+        <div class="input-box">
+
+            <!-- + BUTTON -->
+            <button class="plus-btn" onclick="togglePlusMenu()">➕</button>
+
+            <!-- POPUP MENU -->
+            <div class="plus-menu" id="plusMenu">
+
+                <button onclick="uploadFile()">📎 Add photos & files</button>
+
+                <button onclick="quickAsk('Create an image of a futuristic city')">
+                    🎨 Create image
+                </button>
+
+                <button onclick="quickAsk('Do deep research on artificial intelligence')">
+                    🔍 Deep research
+                </button>
+
+                <button onclick="quickAsk('Best gaming laptops under $1000')">
+                    🛒 Shopping research
+                </button>
+
+                <button onclick="quickAsk('Think step by step about quantum computing')">
+                    🧠 Thinking
+                </button>
+
+            </div>
+
+            <input id="input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter') send()">
+
+            <button class="btn" onclick="send()">Send</button>
+
+            <button class="btn mic" onclick="startVoice()">🎤</button>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // DYNAMIC GREETING
+        function setGreeting() {
+
+            let hour = new Date().getHours();
+
+            let greet = "Hello";
+
+            if (hour < 12)
+                greet = "Good Morning ☀️";
+
+            else if (hour < 18)
+                greet = "Good Afternoon 🌤";
+
+            else
+                greet = "Good Evening 🌙";
+
+            document.getElementById("greeting").innerText =
+                greet + ", I am probe.ai";
+        }
+
+        setGreeting();
+
+        // SIDEBAR
+        function toggleSidebar() {
+            document.getElementById("sidebar")
+                .classList.toggle("hidden");
+        }
+
+        // PLUS MENU
+        function togglePlusMenu() {
+
+            let menu = document.getElementById("plusMenu");
+
+            if (menu.style.display === "flex") {
+                menu.style.display = "none";
+            } else {
+                menu.style.display = "flex";
+            }
+        }
+
+        // ACTIVE BUTTON
+        function setActive(btn) {
+
+            document.querySelectorAll(".side-btn")
+                .forEach(b => b.classList.remove("active"));
+
+            btn.classList.add("active");
+        }
+
+        // ADD MESSAGE
+        function addMessage(text, type) {
+
+            let chat = document.getElementById("chat");
+
+            let div = document.createElement("div");
+
+            div.className = "msg " + type;
+
+            div.innerHTML =
+                text +
+                `<div class="time">
+            ${new Date().toLocaleTimeString()}
+            </div>`;
+
+            chat.appendChild(div);
+
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // TYPING EFFECT
+        function typeMessage(text) {
+
+            let chat = document.getElementById("chat");
+
+            let div = document.createElement("div");
+
+            div.className = "msg bot";
+
+            chat.appendChild(div);
+
+            let i = 0;
+
+            let interval = setInterval(() => {
+
+                div.innerHTML =
+                    text.substring(0, i) +
+                    `<div class="time">
+                ${new Date().toLocaleTimeString()}
+                </div>`;
+
+                i++;
+
+                chat.scrollTop = chat.scrollHeight;
+
+                if (i > text.length)
+                    clearInterval(interval);
+
+            }, 15);
+        }
+
+        // SEND
+        async function send() {
+
+            let input = document.getElementById("input");
+
+            let msg = input.value.trim();
+
+            if (!msg) return;
+
+            addMessage(msg, "user");
+
+            input.value = "";
+
+            let res = await fetch("/chat", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: msg
+                })
+            });
+
+            let data = await res.json();
+
+            typeMessage(data.response);
+        }
+
+        // VOICE
+        function startVoice() {
+
+            let recognition =
+                new (
+                    window.SpeechRecognition ||
+                    window.webkitSpeechRecognition
+                )();
+
+            recognition.lang = "en-US";
+
+            recognition.start();
+
+            recognition.onresult = function (event) {
+
+                let text =
+                    event.results[0][0].transcript;
+
+                document.getElementById("input").value = text;
+
+                send();
+            };
+        }
+
+        // NEW CHAT
+        function newChat(btn) {
+
+            setActive(btn);
+
+            document.getElementById("chat").innerHTML = "";
+        }
+
+        // CLEAR CHAT
+        function clearChat(btn) {
+
+            setActive(btn);
+
+            document.getElementById("chat").innerHTML = "";
+        }
+
+        // LOAD HISTORY
+        async function loadHistory(btn) {
+
+            setActive(btn);
+
+            let res = await fetch("/history");
+
+            let data = await res.json();
+
+            document.getElementById("chat").innerHTML = "";
+
+            data.forEach(msg => {
+                addMessage(msg, "bot");
+            });
+        }
+
+        // QUICK ASK
+        function quickAsk(text, btn = null) {
+
+            if (btn)
+                setActive(btn);
+
+            document.getElementById("input").value = text;
+
+            send();
+        }
+
+        // FILE UPLOAD
+        function uploadFile() {
+
+            let input = document.createElement("input");
+
+            input.type = "file";
+
+            input.click();
+
+            input.onchange = function () {
+
+                let file = input.files[0];
+
+                if (file) {
+
+                    addMessage(
+                        "📎 Uploaded: " + file.name,
+                        "user"
+                    );
+                }
+            }
+        }
+
+        // CLOSE MENU IF CLICK OUTSIDE
+        document.addEventListener("click", function (e) {
+
+            let menu =
+                document.getElementById("plusMenu");
+
+            let plus =
+                document.querySelector(".plus-btn");
+
+            if (!menu.contains(e.target) &&
+                !plus.contains(e.target)) {
+
+                menu.style.display = "none";
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
